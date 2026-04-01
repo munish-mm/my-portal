@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Manish · My Portal</title>
+<style>
+  :root{--bg:#0d1017;--surface:#13161f;--surface2:#1a1e2a;--border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.13);--text:#dde1ee;--text2:#7a8099;--text3:#3d4259;--accent:#4f7aff;--accent-soft:rgba(79,122,255,0.1);--green:#2ecc8f;--amber:#f5a623;--teal:#22d3ee;--pink:#e879f9;--r:10px;}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:-apple-system,'SF Pro Text',BlinkMacSystemFont,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:14px;line-height:1.5;}
+  a{text-decoration:none;color:inherit;}
+  #app{display:flex;min-height:100vh;}
+  #sidebar{width:210px;flex-shrink:0;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;padding:20px 0;position:sticky;top:0;height:100vh;overflow-y:auto;}
+  .brand{padding:0 16px 16px;border-bottom:1px solid var(--border);margin-bottom:12px;}
+  .brand-avatar{width:36px;height:36px;border-radius:50%;background:#1e2a4a;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:600;color:var(--accent);margin-bottom:8px;}
+  .brand-name{font-size:15px;font-weight:600;color:var(--text);}
+  .brand-time{font-size:11px;color:var(--text3);margin-top:2px;}
+  .nav-group{padding:0 8px;}
+  .nav-label{font-size:9px;color:var(--text3);letter-spacing:1px;text-transform:uppercase;padding:8px 8px 4px;}
+  .nav-item{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:7px;cursor:pointer;color:var(--text2);font-size:12px;transition:background .12s,color .12s;user-select:none;border:none;background:none;width:100%;text-align:left;font-family:inherit;}
+  .nav-item:hover{background:var(--surface2);color:var(--text);}
+  .nav-item.active{background:var(--accent-soft);color:var(--accent);}
+  .nav-item svg{width:14px;height:14px;flex-shrink:0;}
+  #main{flex:1;padding:28px 32px;max-width:960px;}
+  .topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;}
+  .greeting{font-size:20px;font-weight:600;letter-spacing:-.3px;}
+  .greeting em{color:var(--accent);font-style:normal;}
+  .date-pill{background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:5px 12px;font-size:11px;color:var(--text2);}
+  .search-wrap{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:10px 14px;display:flex;align-items:center;gap:9px;margin-bottom:28px;transition:border-color .15s;}
+  .search-wrap:focus-within{border-color:var(--border2);}
+  .search-wrap svg{opacity:.3;flex-shrink:0;}
+  .search-wrap input{background:none;border:none;outline:none;color:var(--text);font-size:13px;width:100%;font-family:inherit;}
+  .search-wrap input::placeholder{color:var(--text3);}
+  .search-kbd{margin-left:auto;background:var(--surface2);border-radius:4px;padding:2px 7px;font-size:10px;color:var(--text3);flex-shrink:0;}
+  .section{margin-bottom:30px;}
+  .section-head{display:flex;align-items:center;gap:8px;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);}
+  .section-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+  .section-title{font-size:11px;font-weight:500;color:var(--text2);letter-spacing:.5px;text-transform:uppercase;}
+  .section-count{margin-left:auto;font-size:10px;color:var(--text3);}
+  .link-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(175px,1fr));gap:8px;}
+  .folder-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(195px,1fr));gap:8px;}
+  .link-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:13px;display:flex;align-items:flex-start;gap:10px;cursor:pointer;transition:border-color .12s,background .12s;text-decoration:none;color:inherit;}
+  .link-card:hover{border-color:var(--border2);background:var(--surface2);}
+  .link-card-icon{width:30px;height:30px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;}
+  .link-card-body{min-width:0;}
+  .link-card-name{font-size:12px;font-weight:500;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .link-card-sub{font-size:10px;color:var(--text3);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .link-card-badge{display:inline-block;margin-top:5px;font-size:9px;padding:2px 6px;border-radius:4px;font-weight:500;}
+  .folder-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:14px 16px;cursor:pointer;transition:border-color .12s,background .12s;user-select:none;}
+  .folder-card:hover{border-color:var(--border2);background:var(--surface2);}
+  .folder-card-top{display:flex;align-items:center;gap:10px;}
+  .folder-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;}
+  .folder-name{font-size:13px;font-weight:500;color:var(--text);flex:1;}
+  .folder-meta{font-size:10px;color:var(--text3);margin-top:3px;}
+  .folder-arr{color:var(--text3);font-size:16px;}
+  #panel-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;}
+  #panel-overlay.open{display:block;}
+  #slide-panel{position:fixed;top:0;right:-440px;bottom:0;width:420px;background:var(--surface);border-left:1px solid var(--border);z-index:201;display:flex;flex-direction:column;transition:right .28s cubic-bezier(.4,0,.2,1);}
+  #slide-panel.open{right:0;}
+  .panel-head{display:flex;align-items:center;gap:12px;padding:18px 20px;border-bottom:1px solid var(--border);flex-shrink:0;}
+  .panel-back{background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:5px 11px;font-size:11px;color:var(--text2);cursor:pointer;font-family:inherit;}
+  .panel-back:hover{border-color:var(--border2);color:var(--text);}
+  .panel-title{font-size:15px;font-weight:600;color:var(--text);}
+  .panel-meta{font-size:11px;color:var(--text3);margin-left:auto;}
+  .panel-body{padding:18px 20px;overflow-y:auto;flex:1;}
+  .breadcrumb{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text3);margin-bottom:16px;}
+  .bc-link{color:var(--accent);cursor:pointer;}
+  .bc-sep{opacity:.4;}
+  .bc-cur{color:var(--text2);}
+  .panel-sec-label{font-size:10px;color:var(--text3);letter-spacing:.8px;text-transform:uppercase;margin:14px 0 8px;}
+  .panel-link{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;border:1px solid var(--border);background:var(--surface2);margin-bottom:7px;text-decoration:none;color:inherit;transition:border-color .12s;}
+  .panel-link:hover{border-color:var(--border2);}
+  .panel-link-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+  .panel-link-name{font-size:13px;color:var(--text);flex:1;}
+  .panel-link-type{font-size:10px;border-radius:4px;padding:2px 7px;flex-shrink:0;}
+  .panel-link-arr{font-size:11px;color:var(--text3);}
+  .notes-area{width:100%;min-height:220px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);padding:14px;color:var(--text);font-size:13px;font-family:inherit;resize:vertical;outline:none;line-height:1.7;}
+  .notes-area:focus{border-color:var(--border2);}
+  .notes-area::placeholder{color:var(--text3);}
+  .notes-hint{font-size:10px;color:var(--text3);margin-top:6px;}
+  #loading{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:12px;z-index:500;}
+  .spinner{width:22px;height:22px;border-radius:50%;border:2px solid var(--border2);border-top-color:var(--accent);animation:spin .8s linear infinite;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+  .loading-text{font-size:12px;color:var(--text3);}
+  #status-bar{position:fixed;bottom:16px;right:20px;background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:6px 12px;font-size:11px;color:var(--text3);z-index:100;opacity:0;transition:opacity .3s;}
+  #status-bar.show{opacity:1;}
+  .page{display:none;}
+  .page.active{display:block;}
+  .empty-state{padding:24px;text-align:center;color:var(--text3);font-size:12px;border:1px dashed var(--border);border-radius:var(--r);}
+  @media(max-width:680px){#sidebar{display:none;}#main{padding:16px;}.link-grid{grid-template-columns:repeat(2,1fr);}.folder-grid{grid-template-columns:repeat(2,1fr);}#slide-panel{width:100%;right:-100%;}}
+</style>
+</head>
+<body>
+<div id="loading"><div class="spinner"></div><div class="loading-text">Loading your portal...</div></div>
+<div id="app" style="display:none;">
+  <div id="sidebar">
+    <div class="brand">
+      <div class="brand-avatar">M</div>
+      <div class="brand-name">Manish</div>
+      <div class="brand-time" id="sb-time">Mumbai</div>
+    </div>
+    <div class="nav-group">
+      <div class="nav-label">Menu</div>
+      <button class="nav-item active" onclick="showPage('home')"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 6.5L8 2l6 4.5V14a1 1 0 01-1 1H3a1 1 0 01-1-1V6.5z"/></svg>Home</button>
+      <button class="nav-item" onclick="showPage('personal')"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="5" r="2.5"/><path d="M3 13c0-2.8 2.2-5 5-5s5 2.2 5 5"/></svg>Personal</button>
+      <button class="nav-item" onclick="showPage('official')"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="4" width="12" height="9" rx="1.5"/><path d="M5 4V3a1 1 0 011-1h4a1 1 0 011 1v1"/></svg>Official</button>
+      <button class="nav-item" onclick="showPage('google')"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="5.5"/><path d="M8 8h4M8 5.5V8"/></svg>Google</button>
+      <button class="nav-item" onclick="showPage('tools')"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="5" height="5" rx="1"/><rect x="9" y="2" width="5" height="5" rx="1"/><rect x="2" y="9" width="5" height="5" rx="1"/><rect x="9" y="9" width="5" height="5" rx="1"/></svg>Tools</button>
+      <button class="nav-item" onclick="showPage('notes')"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="12" height="12" rx="1.5"/><path d="M5 6h6M5 9h4"/></svg>Quick Notes</button>
+    </div>
+  </div>
+
+  <div id="main">
+    <div class="topbar">
+      <div class="greeting" id="greeting-text">Good morning, <em>Manish</em></div>
+      <div class="date-pill" id="date-pill">Mumbai</div>
+    </div>
+    <div class="search-wrap">
+      <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="#dde1ee" stroke-width="1.5"><circle cx="6.5" cy="6.5" r="4"/><path d="M10.5 10.5l3 3"/></svg>
+      <input type="text" id="search-input" placeholder="Search all your links... (⌘K)" oninput="handleSearch(this.value)"/>
+      <span class="search-kbd">⌘K</span>
+    </div>
+
+    <div id="page-home" class="page active">
+      <div id="search-results" style="display:none;" class="section">
+        <div class="section-head"><div class="section-dot" style="background:var(--accent)"></div><div class="section-title">Search results</div><div class="section-count" id="search-count"></div></div>
+        <div class="link-grid" id="search-grid"></div>
+      </div>
+      <div id="home-content">
+        <div class="section">
+          <div class="section-head"><div class="section-dot" style="background:var(--green)"></div><div class="section-title">Personal</div><div class="section-count" id="personal-home-count"></div></div>
+          <div class="folder-grid" id="personal-folders-home"></div>
+        </div>
+        <div class="section">
+          <div class="section-head"><div class="section-dot" style="background:var(--accent)"></div><div class="section-title">Official</div><div class="section-count" id="official-home-count"></div></div>
+          <div class="folder-grid" id="official-folders-home"></div>
+        </div>
+        <div class="section">
+          <div class="section-head"><div class="section-dot" style="background:#ea4335"></div><div class="section-title">Google Workspace</div></div>
+          <div class="link-grid" id="google-links-home"></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="page-personal" class="page">
+      <div class="section">
+        <div class="section-head"><div class="section-dot" style="background:var(--green)"></div><div class="section-title">Personal</div><div class="section-count" id="personal-count"></div></div>
+        <div class="folder-grid" id="personal-folders"></div>
+      </div>
+    </div>
+
+    <div id="page-official" class="page">
+      <div class="section">
+        <div class="section-head"><div class="section-dot" style="background:var(--accent)"></div><div class="section-title">Official</div><div class="section-count" id="official-count"></div></div>
+        <div class="folder-grid" id="official-folders"></div>
+      </div>
+    </div>
+
+    <div id="page-google" class="page">
+      <div class="section">
+        <div class="section-head"><div class="section-dot" style="background:#ea4335"></div><div class="section-title">Google Workspace</div></div>
+        <div class="link-grid" id="google-links"></div>
+      </div>
+    </div>
+
+    <div id="page-tools" class="page">
+      <div class="section">
+        <div class="section-head"><div class="section-dot" style="background:var(--pink)"></div><div class="section-title">Tools & Apps</div></div>
+        <div class="link-grid" id="tools-links"></div>
+      </div>
+    </div>
+
+    <div id="page-notes" class="page">
+      <div class="section">
+        <div class="section-head"><div class="section-dot" style="background:var(--teal)"></div><div class="section-title">Quick Notes</div></div>
+        <textarea class="notes-area" id="notes-area" placeholder="Jot anything here — saves automatically..."></textarea>
+        <div class="notes-hint" id="notes-hint">Not saved yet</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="panel-overlay" onclick="closePanel()"></div>
+<div id="slide-panel">
+  <div class="panel-head">
+    <button class="panel-back" onclick="closePanel()">‹ Back</button>
+    <div class="panel-title" id="panel-title"></div>
+    <div class="panel-meta" id="panel-meta"></div>
+  </div>
+  <div class="panel-body" id="panel-body"></div>
+</div>
+<div id="status-bar"></div>
+
+<script>
+// ── YOUR SHEET ID — only this needs to change if you ever recreate the sheet ──
+const SHEET_ID = '2PACX-1vTzs2rnBC3u73D529DG4zFlU_M9E0weM4r5DGk0JqVNAiWBbWQukcEJL0sw3GFLwyG8M83SKqOrg10d';
+
+// ── THREE fetch strategies — tries each in order until one works ──
+const FETCH_URLS = [
+  // Strategy 1: direct (works on GitHub Pages — Google allows it)
+  `https://docs.google.com/spreadsheets/d/e/${SHEET_ID}/pub?gid=0&single=true&output=csv`,
+  // Strategy 2: allorigins CORS proxy
+  `https://api.allorigins.win/raw?url=${encodeURIComponent(`https://docs.google.com/spreadsheets/d/e/${SHEET_ID}/pub?gid=0&single=true&output=csv`)}`,
+  // Strategy 3: corsproxy.io
+  `https://corsproxy.io/?${encodeURIComponent(`https://docs.google.com/spreadsheets/d/e/${SHEET_ID}/pub?gid=0&single=true&output=csv`)}`,
+];
+
+const GOOGLE_LINKS=[
+  {name:'Gmail',url:'https://mail.google.com',type:'Mail',colour:'red',icon:'📧'},
+  {name:'Google Sheets',url:'https://sheets.google.com',type:'Sheets',colour:'green',icon:'📊'},
+  {name:'Google Docs',url:'https://docs.google.com',type:'Docs',colour:'blue',icon:'📄'},
+  {name:'Google Drive',url:'https://drive.google.com',type:'Drive',colour:'yellow',icon:'📁'},
+  {name:'Google Calendar',url:'https://calendar.google.com',type:'Calendar',colour:'red',icon:'📅'},
+  {name:'Google Meet',url:'https://meet.google.com',type:'Meet',colour:'teal',icon:'🎥'},
+  {name:'Google Slides',url:'https://slides.google.com',type:'Slides',colour:'yellow',icon:'📑'},
+  {name:'Google Forms',url:'https://forms.google.com',type:'Forms',colour:'purple',icon:'📋'},
+];
+
+const TOOLS_LINKS=[
+  {name:'WhatsApp Web',url:'https://web.whatsapp.com',type:'Chat',colour:'green',icon:'💬'},
+  {name:'Monday.com',url:'https://monday.com',type:'Tasks',colour:'orange',icon:'📌'},
+  {name:'Apple Notes',url:'https://www.icloud.com/notes',type:'Notes',colour:'yellow',icon:'🗒️'},
+  {name:'Apple Reminders',url:'https://www.icloud.com/reminders',type:'Reminders',colour:'red',icon:'🔔'},
+  {name:'iCloud Drive',url:'https://www.icloud.com/iclouddrive',type:'Storage',colour:'blue',icon:'☁️'},
+  {name:'LinkedIn',url:'https://linkedin.com',type:'Network',colour:'blue',icon:'💼'},
+  {name:'Claude AI',url:'https://claude.ai',type:'AI',colour:'purple',icon:'🤖'},
+  {name:'Income Tax Portal',url:'https://www.incometax.gov.in',type:'Web',colour:'orange',icon:'🧾'},
+];
+
+const CM={
+  red:{bg:'rgba(234,67,53,0.12)',dot:'#ea4335'},
+  green:{bg:'rgba(52,168,83,0.12)',dot:'#34a853'},
+  blue:{bg:'rgba(66,133,244,0.12)',dot:'#4285f4'},
+  yellow:{bg:'rgba(251,188,5,0.12)',dot:'#fbbc05'},
+  teal:{bg:'rgba(34,211,238,0.12)',dot:'#22d3ee'},
+  pink:{bg:'rgba(232,121,249,0.12)',dot:'#e879f9'},
+  purple:{bg:'rgba(167,139,250,0.12)',dot:'#a78bfa'},
+  orange:{bg:'rgba(255,107,107,0.12)',dot:'#ff6b6b'},
+  white:{bg:'rgba(255,255,255,0.06)',dot:'#aab0c4'},
+};
+
+const PALETTE=['blue','green','teal','yellow','orange','pink','purple','white'];
+let sheetLinks=[];
+
+function secMatch(v,t){return(v||'').trim().toLowerCase()===(t||'').trim().toLowerCase();}
+
+async function init(){
+  updateTime();setInterval(updateTime,30000);loadNotes();
+  await fetchSheet();
+  renderAll();
+  document.getElementById('loading').style.display='none';
+  document.getElementById('app').style.display='flex';
+}
+
+async function fetchSheet(){
+  for(let i=0;i<FETCH_URLS.length;i++){
+    try{
+      const res=await fetch(FETCH_URLS[i]);
+      if(!res.ok)continue;
+      const text=await res.text();
+      if(!text||text.trim().length<10)continue;
+      const rows=parseCSV(text);
+      if(rows.length<2)continue;
+      // find header row
+      let hi=0;
+      for(let r=0;r<Math.min(3,rows.length);r++){
+        if(rows[r].some(c=>c.trim().toLowerCase().replace(/\s+/g,'')==='section')){hi=r;break;}
+      }
+      const headers=rows[hi].map(h=>h.trim().toLowerCase().replace(/\s+/g,''));
+      const data=rows.slice(hi+1)
+        .filter(r=>r.some(c=>c.trim()))
+        .map(r=>{
+          const o={};
+          headers.forEach((h,idx)=>o[h]=(r[idx]||'').trim());
+          if(!o.icon)o.icon=guessIcon(o.type||'',o.name||'');
+          if(!o.colour||!CM[o.colour])o.colour=guessColour(o.type||'');
+          return o;
+        })
+        .filter(o=>o.name&&o.url);
+      if(data.length>0){
+        sheetLinks=data;
+        showStatus('Loaded '+data.length+' link'+(data.length!==1?'s':'')+' from your Sheet ✓');
+        return;
+      }
+    }catch(e){continue;}
+  }
+  showStatus('Sheet not reachable — check File → Share → Publish to web');
+}
+
+function parseCSV(text){
+  const rows=[];let row=[];let cell='';let inQ=false;
+  for(let i=0;i<text.length;i++){
+    const c=text[i];
+    if(c==='"'){inQ=!inQ;}
+    else if(c===','&&!inQ){row.push(cell);cell='';}
+    else if((c==='\n'||c==='\r')&&!inQ){
+      if(cell||row.length){row.push(cell);rows.push(row);}
+      row=[];cell='';
+      if(c==='\r'&&text[i+1]==='\n')i++;
+    }else{cell+=c;}
+  }
+  if(cell||row.length){row.push(cell);rows.push(row);}
+  return rows;
+}
+
+function guessIcon(type,name){
+  const t=(type+' '+name).toLowerCase();
+  if(t.includes('mail')||t.includes('gmail'))return'📧';
+  if(t.includes('sheet')||t.includes('excel'))return'📊';
+  if(t.includes('doc')||t.includes('word'))return'📄';
+  if(t.includes('slide')||t.includes('ppt')||t.includes('deck'))return'📑';
+  if(t.includes('drive')||t.includes('folder'))return'📁';
+  if(t.includes('calendar'))return'📅';
+  if(t.includes('meet')||t.includes('video'))return'🎥';
+  if(t.includes('form'))return'📋';
+  if(t.includes('chat')||t.includes('whatsapp'))return'💬';
+  if(t.includes('task')||t.includes('monday'))return'📌';
+  if(t.includes('note'))return'🗒️';
+  if(t.includes('reminder'))return'🔔';
+  if(t.includes('loan')||t.includes('finance')||t.includes('ledger'))return'💰';
+  if(t.includes('bank'))return'🏦';
+  if(t.includes('vendor')||t.includes('eval'))return'🔍';
+  if(t.includes('rough'))return'📝';
+  return'🔗';
+}
+
+function guessColour(type){
+  const t=(type||'').toLowerCase();
+  if(t.includes('doc')||t.includes('word'))return'blue';
+  if(t.includes('sheet')||t.includes('excel'))return'green';
+  if(t.includes('slide'))return'yellow';
+  if(t.includes('mail'))return'red';
+  if(t.includes('meet'))return'teal';
+  if(t.includes('form'))return'purple';
+  return'white';
+}
+
+function hashStr(s){let h=0;for(let i=0;i<s.length;i++)h=Math.imul(31,h)+s.charCodeAt(i)|0;return h;}
+
+function renderAll(){
+  renderSection('Personal');
+  renderSection('Official');
+  renderFixed('google-links',GOOGLE_LINKS);
+  renderFixed('google-links-home',GOOGLE_LINKS);
+  renderFixed('tools-links',TOOLS_LINKS);
+}
+
+function renderSection(sec){
+  const links=sheetLinks.filter(l=>secMatch(l.section,sec));
+  const subs=[...new Set(links.map(l=>(l.subsection||'').trim()).filter(Boolean))];
+  const directs=links.filter(l=>!(l.subsection||'').trim());
+  const total=subs.length+directs.length;
+  const secId=sec.toLowerCase();
+  const countTxt=total+' item'+(total!==1?'s':'');
+  ['personal-home-count','personal-count','official-home-count','official-count'].forEach(id=>{
+    if(id.startsWith(secId)){const el=document.getElementById(id);if(el)el.textContent=countTxt;}
+  });
+  const html=total
+    ?subs.map(sub=>{
+        const sl=links.filter(l=>(l.subsection||'').trim()===sub);
+        const c=CM[PALETTE[Math.abs(hashStr(sub))%PALETTE.length]]||CM.white;
+        return`<div class="folder-card" onclick="openFolder('${sec}','${sub.replace(/'/g,"\\'")}')">
+          <div class="folder-card-top">
+            <div class="folder-icon" style="background:${c.bg}">${guessIcon('',sub)}</div>
+            <div style="flex:1;min-width:0">
+              <div class="folder-name">${sub}</div>
+              <div class="folder-meta">${sl.length} link${sl.length!==1?'s':''}</div>
+            </div>
+            <div class="folder-arr">›</div>
+          </div>
+        </div>`;
+      }).join('')+directs.map(l=>linkCardHTML(l)).join('')
+    :`<div class="empty-state">No links yet — add rows with section="${sec}" in your Google Sheet</div>`;
+  [`${secId}-folders`,`${secId}-folders-home`].forEach(id=>{
+    const el=document.getElementById(id);if(el)el.innerHTML=html;
+  });
+}
+
+function renderFixed(elId,arr){
+  const el=document.getElementById(elId);
+  if(el)el.innerHTML=arr.map(l=>linkCardHTML(l)).join('');
+}
+
+function linkCardHTML(l){
+  const c=CM[l.colour]||CM.white;
+  const icon=l.icon||guessIcon(l.type||'',l.name||'');
+  const url=l.url||'#';
+  const tgt=url!=='#'?'target="_blank" rel="noopener"':'';
+  const domain=url!=='#'?url.replace(/https?:\/\//,'').split('/')[0]:'No URL';
+  const badge=l.type?`<span class="link-card-badge" style="background:${c.bg};color:${c.dot}">${l.type}</span>`:'';
+  return`<a class="link-card" href="${url}" ${tgt}>
+    <div class="link-card-icon" style="background:${c.bg}">${icon}</div>
+    <div class="link-card-body">
+      <div class="link-card-name">${l.name}</div>
+      <div class="link-card-sub">${domain}</div>
+      ${badge}
+    </div>
+  </a>`;
+}
+
+function openFolder(sec,sub){
+  const links=sheetLinks.filter(l=>secMatch(l.section,sec)&&(l.subsection||'').trim()===sub);
+  document.getElementById('panel-title').textContent=sub;
+  document.getElementById('panel-meta').textContent=links.length+' link'+(links.length!==1?'s':'');
+  document.getElementById('panel-body').innerHTML=`
+    <div class="breadcrumb">
+      <span class="bc-link" onclick="closePanel()">Home</span>
+      <span class="bc-sep"> › </span>
+      <span class="bc-link" onclick="showPage('${sec.toLowerCase()}');closePanel();">${sec}</span>
+      <span class="bc-sep"> › </span>
+      <span class="bc-cur">${sub}</span>
+    </div>
+    <div class="panel-sec-label">Links in this folder</div>
+    ${links.length?links.map(l=>{
+      const c=CM[l.colour]||CM.white;
+      const url=l.url||'#';
+      const tgt=url!=='#'?'target="_blank" rel="noopener"':'';
+      const domain=url!=='#'?url.replace(/https?:\/\//,'').split('/')[0]:'No URL set';
+      return`<a class="panel-link" href="${url}" ${tgt}>
+        <div class="panel-link-dot" style="background:${c.dot}"></div>
+        <div style="flex:1;min-width:0">
+          <div class="panel-link-name">${l.name}</div>
+          <div style="font-size:10px;color:var(--text3);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${domain}</div>
+        </div>
+        <span class="panel-link-type" style="background:${c.bg};color:${c.dot}">${l.type||'Link'}</span>
+        <span class="panel-link-arr">↗</span>
+      </a>`;
+    }).join(''):'<div class="empty-state">No links in this folder yet</div>'}
+    <div style="margin-top:18px;padding-top:14px;border-top:1px solid var(--border);font-size:11px;color:var(--text3);line-height:1.7">
+      Add more: open <strong style="color:var(--text2)">Portal Links</strong> Sheet → new row with section=<strong style="color:var(--text2)">${sec}</strong> · subsection=<strong style="color:var(--text2)">${sub}</strong>
+    </div>`;
+  document.getElementById('slide-panel').classList.add('open');
+  document.getElementById('panel-overlay').classList.add('open');
+}
+
+function closePanel(){
+  document.getElementById('slide-panel').classList.remove('open');
+  document.getElementById('panel-overlay').classList.remove('open');
+}
+
+function showPage(name){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('page-'+name).classList.add('active');
+  const map={home:0,personal:1,official:2,google:3,tools:4,notes:5};
+  document.querySelectorAll('.nav-item')[map[name]]?.classList.add('active');
+  document.getElementById('search-input').value='';
+  handleSearch('');
+}
+
+function handleSearch(q){
+  const sr=document.getElementById('search-results');
+  const hc=document.getElementById('home-content');
+  q=q.trim().toLowerCase();
+  if(!q){sr.style.display='none';if(hc)hc.style.display='';return;}
+  const all=[...sheetLinks,...GOOGLE_LINKS.map(l=>({...l,section:'google',subsection:''})),...TOOLS_LINKS.map(l=>({...l,section:'tools',subsection:''}))];
+  const res=all.filter(l=>(l.name||'').toLowerCase().includes(q)||(l.section||'').toLowerCase().includes(q)||(l.subsection||'').toLowerCase().includes(q)||(l.type||'').toLowerCase().includes(q));
+  document.getElementById('search-count').textContent=res.length+' found';
+  document.getElementById('search-grid').innerHTML=res.length?res.map(l=>linkCardHTML(l)).join(''):'<div style="color:var(--text3);font-size:13px;padding:8px 0;">No results found</div>';
+  sr.style.display='';
+  if(hc)hc.style.display='none';
+}
+
+document.addEventListener('keydown',e=>{
+  if((e.metaKey||e.ctrlKey)&&e.key==='k'){e.preventDefault();document.getElementById('search-input').focus();}
+  if(e.key==='Escape'){closePanel();document.getElementById('search-input').blur();}
+});
+
+function updateTime(){
+  const now=new Date();const tz='Asia/Kolkata';
+  const t=now.toLocaleTimeString('en-IN',{timeZone:tz,hour:'2-digit',minute:'2-digit',hour12:true});
+  const d=now.toLocaleDateString('en-IN',{timeZone:tz,weekday:'short',day:'numeric',month:'short',year:'numeric'});
+  const hr=parseInt(now.toLocaleString('en-IN',{timeZone:tz,hour:'numeric',hour12:false}));
+  const greet=hr<12?'Good morning':hr<17?'Good afternoon':'Good evening';
+  const sb=document.getElementById('sb-time');const dp=document.getElementById('date-pill');const gr=document.getElementById('greeting-text');
+  if(sb)sb.textContent=t+' · Mumbai';
+  if(dp)dp.textContent=d+' · Mumbai';
+  if(gr)gr.innerHTML=greet+', <em>Manish</em>';
+}
+
+function loadNotes(){
+  try{const s=localStorage.getItem('portal-notes-v1');const ta=document.getElementById('notes-area');if(ta&&s){ta.value=s;document.getElementById('notes-hint').textContent='Auto-saved';}}catch(e){}
+  const ta=document.getElementById('notes-area');
+  if(ta){ta.addEventListener('input',()=>{try{localStorage.setItem('portal-notes-v1',ta.value);const t=new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});document.getElementById('notes-hint').textContent='Saved at '+t;}catch(e){}});}
+}
+
+function showStatus(msg){
+  const el=document.getElementById('status-bar');
+  el.textContent=msg;el.classList.add('show');
+  setTimeout(()=>el.classList.remove('show'),5000);
+}
+
+init();
+</script>
+</body>
+</html>
